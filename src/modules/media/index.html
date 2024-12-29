@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Streaming Test</title>
+  </head>
+  <body>
+    <h1>Test Video Streaming</h1>
+    <video id="videoPlayer" controls width="640" height="360">
+      <source
+        src="http://localhost:3000/api/media/upload-video"
+        type="video/mp4"
+      />
+      Your browser does not support the video tag.
+    </video>
+
+    <script>
+      const videoPlayer = document.getElementById("videoPlayer");
+
+      // Logging range requests for debugging
+      videoPlayer.addEventListener("loadstart", () => {
+        console.log("Video loading started");
+      });
+
+      videoPlayer.addEventListener("progress", (event) => {
+        const buffered = videoPlayer.buffered;
+        if (buffered.length > 0) {
+          console.log(`Buffered: ${buffered.start(0)} - ${buffered.end(0)}`);
+        }
+      });
+
+      // Optional: Add error handling
+      videoPlayer.addEventListener("error", (e) => {
+        console.error("Video error:", e);
+      });
+    </script>
+  </body>
+</html>

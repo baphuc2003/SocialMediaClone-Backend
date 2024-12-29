@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Test Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      #messages {
+        margin-top: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .message {
+        padding: 5px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+      }
+      #sendButton {
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #sendButton:disabled {
+        background-color: #d6d6d6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WebSocket Test</h1>
+
+    <div>
+      <label for="messageInput">Enter a message to send:</label>
+      <input type="text" id="messageInput" />
+      <button id="sendButton" disabled>Send Message</button>
+    </div>
+
+    <div id="messages">
+      <h3>Messages:</h3>
+    </div>
+
+    <!-- Load the socket.io library from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+
+    <script>
+      // Tạo kết nối WebSocket
+      const socket = io("http://localhost:3000", { withCredentials: true }); // Đảm bảo URL này khớp với server của bạn
+
+      // Khi kết nối thành công
+      socket.on("connect", () => {
+        console.log(1);
+        console.log("Connected to WebSocket server.");
+        //document.getElementById("sendButton").disabled = false;
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log("Disconnected from WebSocket server: ", reason);
+      });
+
+      socket.on("error", (error) => {
+        console.log("WebSocket error: ", error);
+      });
+
+      // Nhận thông báo từ server
+      socket.on("notification", (message) => {
+        const messagesDiv = document.getElementById("messages");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message");
+        messageElement.textContent = `Received: ${JSON.stringify(message)}`;
+        messagesDiv.appendChild(messageElement);
+      });
+
+      // Gửi tin nhắn đến server khi người dùng nhấn nút
+      document.getElementById("sendButton").addEventListener("click", () => {
+        const message = document.getElementById("messageInput").value;
+        socket.emit("notification", { message: message });
+
+        const messagesDiv = document.getElementById("messages");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message");
+        messageElement.textContent = `Sent: ${message}`;
+        messagesDiv.appendChild(messageElement);
+      });
+    </script>
+  </body>
+</html>
