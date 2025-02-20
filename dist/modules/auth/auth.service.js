@@ -32,6 +32,7 @@ let AuthService = class AuthService {
                 userId: userId,
             },
         });
+        console.log("check 41 ", publicKey);
         req.publicKey = publicKey;
         try {
             const decoded = await (0, jwt_1.verifyToken)({ token, signature: publicKey.token });

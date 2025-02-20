@@ -23,25 +23,30 @@ const typeorm_1 = require("@nestjs/typeorm");
 const public_key_entity_1 = require("../public-key/public-key.entity");
 const typeorm_2 = require("typeorm");
 const reset_password_dto_1 = require("./dto/reset-password.dto");
+const user_enum_1 = require("../../constants/user.enum");
+const users_entity_1 = require("../users/entities/users.entity");
 let AuthController = class AuthController {
-    constructor(authService, publicKeyRepository) {
+    constructor(authService, publicKeyRepository, usersRepository) {
         this.authService = authService;
         this.publicKeyRepository = publicKeyRepository;
+        this.usersRepository = usersRepository;
     }
     async confirmEmail(dta, req, res) {
         const { userId, token } = dta;
+        console.log("check 41 ", dta);
         const result = await this.authService.verifyToken({
             userId: userId,
             token: token,
             req,
         });
         const { publicKey, privateKey } = await (0, crypto_1.generateKeyToken)();
+        console.log("check 48 ", req.user);
         const [accessToken, refreshToken] = await Promise.all([
             (0, jwt_1.generateToken)({
                 payload: {
                     type: token_enum_1.TokenType.AccessToken,
                     userId: userId,
-                    status: req.user.status,
+                    status: user_enum_1.Status.Verified,
                 },
                 signature: privateKey,
                 options: {
@@ -53,7 +58,7 @@ let AuthController = class AuthController {
                 payload: {
                     type: token_enum_1.TokenType.RefreshToken,
                     userId: userId,
-                    status: req.user.status,
+                    status: user_enum_1.Status.Verified,
                 },
                 signature: privateKey,
                 options: {
@@ -66,6 +71,7 @@ let AuthController = class AuthController {
             }, {
                 token: publicKey,
             }),
+            this.usersRepository.update({ id: userId }, { status: user_enum_1.Status.Verified }),
         ]);
         return res.status(200).json({
             message: "Authentication success!",
@@ -115,7 +121,9 @@ __decorate([
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)("auth"),
     __param(1, (0, typeorm_1.InjectRepository)(public_key_entity_1.PublicKeyEntity)),
+    __param(2, (0, typeorm_1.InjectRepository)(users_entity_1.UserEntity)),
     __metadata("design:paramtypes", [auth_service_1.AuthService,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

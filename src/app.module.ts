@@ -15,18 +15,21 @@ import { MediaModule } from "./modules/media/media.module";
 import { ConfigModule } from "@nestjs/config";
 import { PostsController } from "./modules/posts/posts.controller";
 import { PostsModule } from "./modules/posts/posts.module";
-import { SocketModule } from './modules/socket/socket.module';
-import { ConversationModule } from './modules/conversation/conversation.module';
+import { SocketModule } from "./modules/socket/socket.module";
+import { ConversationModule } from "./modules/conversation/conversation.module";
+import { CacheModule } from "@nestjs/cache-manager";
+import { KafkaModule } from './modules/kafka/kafka.module';
+import { ElasticsearchModule } from './modules/elasticsearch/elasticsearch.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: "mysql",
       host: "localhost",
-      port: 3307,
-      username: "phuc",
-      password: "secret",
-      database: "test",
+      port: 3306,
+      username: "root",
+      password: "@314159Phuc",
+      database: "demo",
       synchronize: true,
       autoLoadEntities: true,
     }),
@@ -47,6 +50,8 @@ import { ConversationModule } from './modules/conversation/conversation.module';
     PostsModule,
     SocketModule,
     ConversationModule,
+    KafkaModule,
+    ElasticsearchModule,
   ],
   controllers: [AppController, UsersController, PostsController],
   providers: [AppService],

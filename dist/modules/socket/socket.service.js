@@ -15,30 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocketService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const class_validator_1 = require("class-validator");
 const single_conversation_entity_1 = require("./entities/single-conversation.entity");
 const typeorm_2 = require("typeorm");
 let SocketService = class SocketService {
     constructor(singleConversationRepository) {
         this.singleConversationRepository = singleConversationRepository;
-    }
-    async getSingleConversation({ senderId, receiverId, }) {
-        if (!senderId?.trim() || !receiverId?.trim()) {
-            throw new common_1.BadRequestException("SenderId or ReceiverId cannot be empty!");
-        }
-        if (!(0, class_validator_1.isUUID)(senderId) || !(0, class_validator_1.isUUID)(receiverId)) {
-            throw new common_1.BadRequestException("Invalid SenderId or ReceiverId format!");
-        }
-        if (senderId === receiverId) {
-            throw new common_1.BadRequestException("SenderId and ReceiverId cannot be the same!");
-        }
-        const listChat = await this.singleConversationRepository.find({
-            where: {
-                senderId: senderId,
-                receiverId: receiverId,
-            },
-        });
-        return listChat;
     }
 };
 exports.SocketService = SocketService;

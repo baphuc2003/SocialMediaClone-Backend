@@ -29,7 +29,9 @@ export class SingleConversationEntity {
   @Column({ nullable: false, type: "text" })
   content: string;
 
+  @Column()
   created_at: Date;
 
+  @Column()
   updated_at: Date;
 }

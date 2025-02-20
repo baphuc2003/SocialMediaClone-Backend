@@ -18,9 +18,12 @@ const socket_io_1 = require("socket.io");
 const single_conversation_entity_1 = require("../entities/single-conversation.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
+const common_1 = require("@nestjs/common");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let NotificationGateway = class NotificationGateway {
-    constructor(singleConversationRepository) {
+    constructor(singleConversationRepository, cacheManager) {
         this.singleConversationRepository = singleConversationRepository;
+        this.cacheManager = cacheManager;
         this.connectedClients = new Map();
     }
     afterInit(server) {
@@ -53,6 +56,15 @@ let NotificationGateway = class NotificationGateway {
             try {
                 await this.singleConversationRepository.save(newConversation);
                 console.log("Saved new conversation:", newConversation);
+                await this.cacheManager.del(`chat:${data.senderId}:${data.receiverId}`);
+                const updatedConversation = await this.singleConversationRepository.find({
+                    where: [
+                        { senderId: data.senderId, receiverId: data.receiverId },
+                        { senderId: data.receiverId, receiverId: data.senderId },
+                    ],
+                    order: { created_at: "ASC" },
+                });
+                await this.cacheManager.set(`chat:${data.senderId}:${data.receiverId}`, updatedConversation, 180);
             }
             catch (error) {
                 console.error("Error saving conversation:", error);
@@ -103,6 +115,8 @@ exports.NotificationGateway = NotificationGateway = __decorate([
     }),
     (0, websockets_1.WebSocketGateway)({ namespace: "/" }),
     __param(0, (0, typeorm_1.InjectRepository)(single_conversation_entity_1.SingleConversationEntity)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        cache_manager_1.Cache])
 ], NotificationGateway);
 //# sourceMappingURL=notification.gateway.js.map

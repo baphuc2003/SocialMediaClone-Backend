@@ -15,6 +15,7 @@ const public_key_module_1 = require("../public-key/public-key.module");
 const single_conversation_entity_1 = require("./entities/single-conversation.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 const socket_service_1 = require("./socket.service");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let SocketModule = class SocketModule {
 };
 exports.SocketModule = SocketModule;
@@ -24,6 +25,7 @@ exports.SocketModule = SocketModule = __decorate([
             users_module_1.UsersModule,
             public_key_module_1.PublicKeyModule,
             typeorm_1.TypeOrmModule.forFeature([single_conversation_entity_1.SingleConversationEntity]),
+            cache_manager_1.CacheModule.register(),
         ],
         providers: [notification_gateway_1.NotificationGateway, socket_service_1.SocketService],
         controllers: [socket_controller_1.SocketController],

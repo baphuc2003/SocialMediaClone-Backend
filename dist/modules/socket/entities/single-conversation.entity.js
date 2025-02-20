@@ -41,6 +41,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: false, type: "text" }),
     __metadata("design:type", String)
 ], SingleConversationEntity.prototype, "content", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Date)
+], SingleConversationEntity.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Date)
+], SingleConversationEntity.prototype, "updated_at", void 0);
 exports.SingleConversationEntity = SingleConversationEntity = __decorate([
     (0, typeorm_1.Entity)("SingleConversation")
 ], SingleConversationEntity);

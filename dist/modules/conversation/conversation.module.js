@@ -10,13 +10,24 @@ exports.ConversationModule = void 0;
 const common_1 = require("@nestjs/common");
 const conversation_controller_1 = require("./conversation.controller");
 const conversation_service_1 = require("./conversation.service");
+const typeorm_1 = require("@nestjs/typeorm");
+const single_conversation_entity_1 = require("../socket/entities/single-conversation.entity");
+const public_key_module_1 = require("../public-key/public-key.module");
+const users_module_1 = require("../users/users.module");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let ConversationModule = class ConversationModule {
 };
 exports.ConversationModule = ConversationModule;
 exports.ConversationModule = ConversationModule = __decorate([
     (0, common_1.Module)({
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([single_conversation_entity_1.SingleConversationEntity]),
+            public_key_module_1.PublicKeyModule,
+            users_module_1.UsersModule,
+            cache_manager_1.CacheModule.register(),
+        ],
         controllers: [conversation_controller_1.ConversationController],
-        providers: [conversation_service_1.ConversationService]
+        providers: [conversation_service_1.ConversationService],
     })
 ], ConversationModule);
 //# sourceMappingURL=conversation.module.js.map

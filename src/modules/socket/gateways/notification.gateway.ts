@@ -10,6 +10,8 @@ import { IReceivedMessage } from "../interface/receivedMessage";
 import { SingleConversationEntity } from "../entities/single-conversation.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Inject } from "@nestjs/common";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 
 @WebSocketGateway({
   cors: {
@@ -31,7 +33,8 @@ export class NotificationGateway
 
   constructor(
     @InjectRepository(SingleConversationEntity)
-    private readonly singleConversationRepository: Repository<SingleConversationEntity>
+    private readonly singleConversationRepository: Repository<SingleConversationEntity>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   private connectedClients: Map<string, string> = new Map();
@@ -72,6 +75,22 @@ export class NotificationGateway
       try {
         await this.singleConversationRepository.save(newConversation);
         console.log("Saved new conversation:", newConversation);
+
+        await this.cacheManager.del(`chat:${data.senderId}:${data.receiverId}`);
+
+        const updatedConversation =
+          await this.singleConversationRepository.find({
+            where: [
+              { senderId: data.senderId, receiverId: data.receiverId },
+              { senderId: data.receiverId, receiverId: data.senderId },
+            ],
+            order: { created_at: "ASC" },
+          });
+        await this.cacheManager.set(
+          `chat:${data.senderId}:${data.receiverId}`,
+          updatedConversation,
+          180
+        );
       } catch (error) {
         console.error("Error saving conversation:", error);
       }

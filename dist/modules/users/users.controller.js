@@ -123,6 +123,7 @@ let UsersController = class UsersController {
     }
     async getListFollow(req, res) {
         const userId = req.accessToken?.userId;
+        console.log("check 181 ", userId);
         const result = await this.userService.listFollow(userId);
         return res.status(200).json({
             message: "Get list following successfully!",

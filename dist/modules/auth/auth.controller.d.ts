@@ -3,10 +3,12 @@ import { Request, Response } from "express";
 import { PublicKeyEntity } from "../public-key/public-key.entity";
 import { Repository } from "typeorm";
 import { ResetPasswordBodyDto, ResetPasswordQueryDto } from "./dto/reset-password.dto";
+import { UserEntity } from "../users/entities/users.entity";
 export declare class AuthController {
     private readonly authService;
     private readonly publicKeyRepository;
-    constructor(authService: AuthService, publicKeyRepository: Repository<PublicKeyEntity>);
+    private readonly usersRepository;
+    constructor(authService: AuthService, publicKeyRepository: Repository<PublicKeyEntity>, usersRepository: Repository<UserEntity>);
     confirmEmail(dta: {
         userId: string;
         token: string;

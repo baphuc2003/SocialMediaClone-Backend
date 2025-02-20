@@ -178,6 +178,7 @@ export class UsersController {
   @UseGuards(AccessTokenGuard, UserVerifyGuard)
   async getListFollow(@Req() req: Request, @Res() res: Response) {
     const userId = req.accessToken?.userId;
+    console.log("check 181 ", userId);
     const result = await this.userService.listFollow(userId);
     return res.status(200).json({
       message: "Get list following successfully!",

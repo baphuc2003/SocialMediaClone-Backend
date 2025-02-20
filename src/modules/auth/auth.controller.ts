@@ -23,13 +23,17 @@ import {
   ResetPasswordBodyDto,
   ResetPasswordQueryDto,
 } from "./dto/reset-password.dto";
+import { Status } from "src/constants/user.enum";
+import { UserEntity } from "../users/entities/users.entity";
 
 @Controller("auth")
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     @InjectRepository(PublicKeyEntity)
-    private readonly publicKeyRepository: Repository<PublicKeyEntity>
+    private readonly publicKeyRepository: Repository<PublicKeyEntity>,
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>
   ) {}
   @Get("confirm")
   async confirmEmail(
@@ -38,19 +42,20 @@ export class AuthController {
     @Res() res: Response
   ) {
     const { userId, token } = dta;
+    console.log("check 41 ", dta);
     const result = await this.authService.verifyToken({
       userId: userId,
       token: token,
       req,
     });
     const { publicKey, privateKey } = await generateKeyToken();
-
+    console.log("check 48 ", req.user);
     const [accessToken, refreshToken] = await Promise.all([
       generateToken({
         payload: {
           type: TokenType.AccessToken,
           userId: userId,
-          status: req.user.status,
+          status: Status.Verified,
         },
         signature: privateKey,
         options: {
@@ -62,7 +67,7 @@ export class AuthController {
         payload: {
           type: TokenType.RefreshToken,
           userId: userId,
-          status: req.user.status,
+          status: Status.Verified,
         },
         signature: privateKey,
         options: {
@@ -79,6 +84,7 @@ export class AuthController {
           token: publicKey,
         }
       ),
+      this.usersRepository.update({ id: userId }, { status: Status.Verified }),
     ]);
 
     return res.status(200).json({
