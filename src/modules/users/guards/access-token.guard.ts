@@ -8,7 +8,6 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Request } from "express";
-import { Observable } from "rxjs";
 import { PublicKeyEntity } from "src/modules/public-key/public-key.entity";
 import { UserEntity } from "src/modules/users/entities/users.entity";
 import { decodedToken, ITypeToken, verifyToken } from "src/utils/jwt";
@@ -22,9 +21,8 @@ export class AccessTokenGuard implements CanActivate {
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>
   ) {}
-  async canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
@@ -36,6 +34,10 @@ export class AccessTokenGuard implements CanActivate {
       const decodedAccessToken = (await decodedToken(
         token?.accessToken
       )) as ITypeToken | null;
+
+      if (!decodedAccessToken) {
+        throw new UnauthorizedException("Access token invalid");
+      }
 
       const { userId } = decodedAccessToken;
 
@@ -51,51 +53,31 @@ export class AccessTokenGuard implements CanActivate {
           },
         }),
       ]);
-      request.user = user;
-      if (!publicKey) {
-        throw new NotFoundException("Public key doesn't exists");
+
+      if (!user) {
+        throw new NotFoundException("User not found");
       }
+      if (!publicKey) {
+        throw new NotFoundException("Public key doesn't exist");
+      }
+
+      request.user = user;
+
       const verifiedAccessToken = (await verifyToken({
         token: token.accessToken,
         signature: publicKey.token,
       })) as ITypeToken;
+
       request.accessToken = verifiedAccessToken;
+
+      return true;
     } catch (error) {
-      console.log("check 39 ", error);
+      console.log("check error: ", error);
       if (error.message?.includes("jwt expired")) {
         throw new GoneException("Need to refresh token");
       }
-
-      //   .json({ message: "Please Login Again!" });
       throw new UnauthorizedException("Please Login Again!");
     }
-    // if (!decodedAccessToken) {
-    //   throw new UnauthorizedException("Access token invalid");
-    // }
-    // const { userId } = decodedAccessToken;
-
-    // const [user, publicKey] = await Promise.all([
-    //   this.usersRepository.findOne({
-    //     where: {
-    //       id: userId,
-    //     },
-    //   }),
-    //   this.publicKeyRepository.findOne({
-    //     where: {
-    //       userId: userId,
-    //     },
-    //   }),
-    // ]);
-    // request.user = user;
-    // if (!publicKey) {
-    //   throw new NotFoundException("Public key doesn't exists");
-    // }
-    // const verifiedAccessToken = (await verifyToken({
-    //   token: token.accessToken,
-    //   signature: publicKey.token,
-    // })) as ITypeToken;
-    // request.accessToken = verifiedAccessToken;
-    return true;
   }
 
   private extractTokenFromHeader(request: Request): any {
