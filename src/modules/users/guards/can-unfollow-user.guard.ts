@@ -21,17 +21,22 @@ export class CanUnfollowUserGuard implements CanActivate {
     private readonly followRepository: Repository<FollowEntity>
   ) {}
 
-  async canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     const { following_user_id } = request.body;
     const userId = request.user?.id;
+
+    if (!userId) {
+      throw new BadRequestException("User not authenticated");
+    }
+
     if (!following_user_id) {
-      throw new BadRequestException("Following user id doesn't exists!");
+      throw new BadRequestException("Following user ID is required");
     }
 
     if (!isUUID(following_user_id)) {
       throw new BadRequestException(
-        "Invalid following user id format. It must be a UUID string."
+        "Invalid following user ID format. It must be a UUID string."
       );
     }
 
@@ -54,6 +59,6 @@ export class CanUnfollowUserGuard implements CanActivate {
 
     // Xóa bản ghi follow
     await this.followRepository.remove(followRecord);
-    return { message: "Unfollow successful" };
+    return true; // Cho phép request tiếp tục
   }
 }
