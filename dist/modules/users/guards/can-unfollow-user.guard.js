@@ -28,11 +28,14 @@ let CanUnfollowUserGuard = class CanUnfollowUserGuard {
         const request = context.switchToHttp().getRequest();
         const { following_user_id } = request.body;
         const userId = request.user?.id;
+        if (!userId) {
+            throw new common_1.BadRequestException("User not authenticated");
+        }
         if (!following_user_id) {
-            throw new common_1.BadRequestException("Following user id doesn't exists!");
+            throw new common_1.BadRequestException("Following user ID is required");
         }
         if (!(0, class_validator_1.isUUID)(following_user_id)) {
-            throw new common_1.BadRequestException("Invalid following user id format. It must be a UUID string.");
+            throw new common_1.BadRequestException("Invalid following user ID format. It must be a UUID string.");
         }
         const followingUser = await this.usersRepository.findOne({
             where: { id: following_user_id },
@@ -50,7 +53,7 @@ let CanUnfollowUserGuard = class CanUnfollowUserGuard {
             throw new common_1.BadRequestException("You are not following this user");
         }
         await this.followRepository.remove(followRecord);
-        return { message: "Unfollow successful" };
+        return true;
     }
 };
 exports.CanUnfollowUserGuard = CanUnfollowUserGuard;

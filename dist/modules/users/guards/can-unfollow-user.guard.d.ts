@@ -6,7 +6,5 @@ export declare class CanUnfollowUserGuard implements CanActivate {
     private readonly usersRepository;
     private readonly followRepository;
     constructor(usersRepository: Repository<UserEntity>, followRepository: Repository<FollowEntity>);
-    canActivate(context: ExecutionContext): Promise<{
-        message: string;
-    }>;
+    canActivate(context: ExecutionContext): Promise<boolean>;
 }

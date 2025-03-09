@@ -32,6 +32,9 @@ let AccessTokenGuard = class AccessTokenGuard {
         }
         try {
             const decodedAccessToken = (await (0, jwt_1.decodedToken)(token?.accessToken));
+            if (!decodedAccessToken) {
+                throw new common_1.UnauthorizedException("Access token invalid");
+            }
             const { userId } = decodedAccessToken;
             const [user, publicKey] = await Promise.all([
                 this.usersRepository.findOne({
@@ -45,24 +48,27 @@ let AccessTokenGuard = class AccessTokenGuard {
                     },
                 }),
             ]);
-            request.user = user;
-            if (!publicKey) {
-                throw new common_1.NotFoundException("Public key doesn't exists");
+            if (!user) {
+                throw new common_1.NotFoundException("User not found");
             }
+            if (!publicKey) {
+                throw new common_1.NotFoundException("Public key doesn't exist");
+            }
+            request.user = user;
             const verifiedAccessToken = (await (0, jwt_1.verifyToken)({
                 token: token.accessToken,
                 signature: publicKey.token,
             }));
             request.accessToken = verifiedAccessToken;
+            return true;
         }
         catch (error) {
-            console.log("check 39 ", error);
+            console.log("check error: ", error);
             if (error.message?.includes("jwt expired")) {
                 throw new common_1.GoneException("Need to refresh token");
             }
             throw new common_1.UnauthorizedException("Please Login Again!");
         }
-        return true;
     }
     extractTokenFromHeader(request) {
         const cookies = request.headers.cookie
