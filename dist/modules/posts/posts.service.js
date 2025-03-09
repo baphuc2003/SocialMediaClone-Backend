@@ -23,9 +23,10 @@ const file_map_1 = require("../media/data-structures/file-map");
 const like_entity_1 = require("./entities/like.entity");
 const follow_entity_1 = require("../users/entities/follow.entity");
 let PostsService = class PostsService {
-    constructor(postRepository, postQueue, hashtagRepository, likeRepository, followRepository) {
+    constructor(postRepository, postQueue, commentQueue, hashtagRepository, likeRepository, followRepository) {
         this.postRepository = postRepository;
         this.postQueue = postQueue;
+        this.commentQueue = commentQueue;
         this.hashtagRepository = hashtagRepository;
         this.likeRepository = likeRepository;
         this.followRepository = followRepository;
@@ -63,7 +64,15 @@ let PostsService = class PostsService {
             userId,
             post: postEntity,
         });
+        console.log("check 83 ", job);
         const result = await job.finished();
+        console.log("check 83 ", result);
+        const r = await this.commentQueue.add("create-graphComment", {
+            userRootId: result?.user?.id,
+            postRootId: result?.id,
+        });
+        const r2 = await r.finished();
+        console.log("check 90 ", r2);
         return result;
         return;
     }
@@ -183,10 +192,11 @@ exports.PostsService = PostsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(post_entity_1.PostEntity)),
     __param(1, (0, bull_1.InjectQueue)("postQueue")),
-    __param(2, (0, typeorm_1.InjectRepository)(hashtag_entity_1.HashtagEntity)),
-    __param(3, (0, typeorm_1.InjectRepository)(like_entity_1.LikeEntity)),
-    __param(4, (0, typeorm_1.InjectRepository)(follow_entity_1.FollowEntity)),
-    __metadata("design:paramtypes", [typeorm_2.Repository, Object, typeorm_2.Repository,
+    __param(2, (0, bull_1.InjectQueue)("commentQueue")),
+    __param(3, (0, typeorm_1.InjectRepository)(hashtag_entity_1.HashtagEntity)),
+    __param(4, (0, typeorm_1.InjectRepository)(like_entity_1.LikeEntity)),
+    __param(5, (0, typeorm_1.InjectRepository)(follow_entity_1.FollowEntity)),
+    __metadata("design:paramtypes", [typeorm_2.Repository, Object, Object, typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], PostsService);

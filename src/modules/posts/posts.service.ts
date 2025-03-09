@@ -22,6 +22,7 @@ export class PostsService {
     @InjectRepository(PostEntity)
     private readonly postRepository: Repository<PostEntity>,
     @InjectQueue("postQueue") private postQueue: Queue,
+    @InjectQueue("commentQueue") private commentQueue: Queue,
     @InjectRepository(HashtagEntity)
     private readonly hashtagRepository: Repository<HashtagEntity>,
     @InjectRepository(LikeEntity)
@@ -79,7 +80,16 @@ export class PostsService {
       userId,
       post: postEntity,
     });
+    console.log("check 83 ", job);
     const result = await job.finished();
+    console.log("check 83 ", result);
+    //gọi comment queue tạo đồ thị
+    const r = await this.commentQueue.add("create-graphComment", {
+      userRootId: result?.user?.id,
+      postRootId: result?.id,
+    });
+    const r2 = await r.finished();
+    console.log("check 90 ", r2);
     return result;
     return;
     //Lưu post

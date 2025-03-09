@@ -10,6 +10,7 @@ import { BullModule } from "@nestjs/bull";
 import { PostProcessor } from "./processor/post.processor";
 import { MediaModule } from "../media/media.module";
 import { LikeEntity } from "./entities/like.entity";
+import { CommentsModule } from "../comments/comments.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LikeEntity } from "./entities/like.entity";
     UsersModule,
     PublicKeyModule,
     MediaModule,
+    CommentsModule,
     BullModule.registerQueue({
       name: "postQueue",
     }),

@@ -19,6 +19,7 @@ const bull_1 = require("@nestjs/bull");
 const post_processor_1 = require("./processor/post.processor");
 const media_module_1 = require("../media/media.module");
 const like_entity_1 = require("./entities/like.entity");
+const comments_module_1 = require("../comments/comments.module");
 let PostsModule = class PostsModule {
 };
 exports.PostsModule = PostsModule;
@@ -29,6 +30,7 @@ exports.PostsModule = PostsModule = __decorate([
             users_module_1.UsersModule,
             public_key_module_1.PublicKeyModule,
             media_module_1.MediaModule,
+            comments_module_1.CommentsModule,
             bull_1.BullModule.registerQueue({
                 name: "postQueue",
             }),

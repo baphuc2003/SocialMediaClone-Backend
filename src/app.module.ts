@@ -18,8 +18,12 @@ import { PostsModule } from "./modules/posts/posts.module";
 import { SocketModule } from "./modules/socket/socket.module";
 import { ConversationModule } from "./modules/conversation/conversation.module";
 import { CacheModule } from "@nestjs/cache-manager";
-import { KafkaModule } from './modules/kafka/kafka.module';
-import { ElasticsearchModule } from './modules/elasticsearch/elasticsearch.module';
+import { CommentsModule } from "./modules/comments/comments.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import {
+  Comment,
+  CommentSchema,
+} from "./modules/comments/schemas/comment.schema";
 
 @Module({
   imports: [
@@ -33,6 +37,7 @@ import { ElasticsearchModule } from './modules/elasticsearch/elasticsearch.modul
       synchronize: true,
       autoLoadEntities: true,
     }),
+    MongooseModule.forRoot("mongodb://localhost/nest"),
 
     UsersModule,
     MailModule,
@@ -50,8 +55,7 @@ import { ElasticsearchModule } from './modules/elasticsearch/elasticsearch.modul
     PostsModule,
     SocketModule,
     ConversationModule,
-    KafkaModule,
-    ElasticsearchModule,
+    CommentsModule,
   ],
   controllers: [AppController, UsersController, PostsController],
   providers: [AppService],

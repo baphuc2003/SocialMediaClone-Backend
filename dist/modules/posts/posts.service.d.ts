@@ -9,10 +9,11 @@ import { FollowEntity } from "../users/entities/follow.entity";
 export declare class PostsService {
     private readonly postRepository;
     private postQueue;
+    private commentQueue;
     private readonly hashtagRepository;
     private readonly likeRepository;
     private readonly followRepository;
-    constructor(postRepository: Repository<PostEntity>, postQueue: Queue, hashtagRepository: Repository<HashtagEntity>, likeRepository: Repository<LikeEntity>, followRepository: Repository<FollowEntity>);
+    constructor(postRepository: Repository<PostEntity>, postQueue: Queue, commentQueue: Queue, hashtagRepository: Repository<HashtagEntity>, likeRepository: Repository<LikeEntity>, followRepository: Repository<FollowEntity>);
     addPost({ req, userId, post, files, }: {
         req: Request;
         userId: string;

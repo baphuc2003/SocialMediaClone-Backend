@@ -24,8 +24,8 @@ const posts_controller_1 = require("./modules/posts/posts.controller");
 const posts_module_1 = require("./modules/posts/posts.module");
 const socket_module_1 = require("./modules/socket/socket.module");
 const conversation_module_1 = require("./modules/conversation/conversation.module");
-const kafka_module_1 = require("./modules/kafka/kafka.module");
-const elasticsearch_module_1 = require("./modules/elasticsearch/elasticsearch.module");
+const comments_module_1 = require("./modules/comments/comments.module");
+const mongoose_1 = require("@nestjs/mongoose");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
                 synchronize: true,
                 autoLoadEntities: true,
             }),
+            mongoose_1.MongooseModule.forRoot("mongodb://localhost/nest"),
             users_module_1.UsersModule,
             mail_module_1.MailModule,
             bullmq_1.BullModule.forRoot({
@@ -58,8 +59,7 @@ exports.AppModule = AppModule = __decorate([
             posts_module_1.PostsModule,
             socket_module_1.SocketModule,
             conversation_module_1.ConversationModule,
-            kafka_module_1.KafkaModule,
-            elasticsearch_module_1.ElasticsearchModule,
+            comments_module_1.CommentsModule,
         ],
         controllers: [app_controller_1.AppController, users_controller_1.UsersController, posts_controller_1.PostsController],
         providers: [app_service_1.AppService],
