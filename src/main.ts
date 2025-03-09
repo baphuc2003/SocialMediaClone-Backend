@@ -24,7 +24,7 @@ async function bootstrap() {
   });
   app.use(cookieParser());
 
-  await app.listen(process.env.PORT_SERVER || 3000);
+  await app.listen(process.env.PORT_SERVER || 3000, "0.0.0.0");
   console.log(`Sever is running on port ${process.env.PORT_SERVER}`);
 }
 bootstrap();
