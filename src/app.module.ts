@@ -12,7 +12,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { RabbitMQModule } from "./modules/rabbitMq/rabbitmq.module";
 import { BullModule } from "@nestjs/bullmq";
 import { MediaModule } from "./modules/media/media.module";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { PostsController } from "./modules/posts/posts.controller";
 import { PostsModule } from "./modules/posts/posts.module";
 import { SocketModule } from "./modules/socket/socket.module";
@@ -27,25 +27,48 @@ import {
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: "mysql",
-      host: "localhost",
-      port: 3306,
-      username: "root",
-      password: "@314159Phuc",
-      database: "demo",
-      synchronize: true,
-      autoLoadEntities: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        console.log("DATABASE_HOST:", configService.get("DATABASE_HOST"));
+        console.log("DATABASE_PORT:", configService.get("DATABASE_PORT"));
+        return {
+          type: "mysql",
+          host: configService.get("DATABASE_HOST") || "localhost",
+          port: +configService.get("DATABASE_PORT") || 3306,
+          username: configService.get("DATABASE_USERNAME") || "root",
+          password: configService.get("DATABASE_PASSWORD") || "@314159Phuc",
+          database: configService.get("DATABASE_NAME") || "demo",
+          synchronize: true,
+          autoLoadEntities: true,
+        };
+      },
+      inject: [ConfigService],
     }),
-    MongooseModule.forRoot("mongodb://localhost/nest"),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        console.log("MONGO_HOST:", configService.get("MONGO_HOST"));
+        console.log("MONGO_PORT:", configService.get("MONGO_PORT"));
+        console.log("MONGO_DATABASE:", configService.get("MONGO_DATABASE"));
+        return {
+          uri: `mongodb://${configService.get("MONGO_HOST") || "localhost"}:${configService.get("MONGO_PORT") || 27017}/${configService.get("MONGO_DATABASE") || "nest"}`,
+        };
+      },
+      inject: [ConfigService],
+    }),
 
     UsersModule,
     MailModule,
-    BullModule.forRoot({
-      connection: {
-        host: "localhost",
-        port: 6379,
-      },
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get("REDIS_HOST") || "localhost",
+          port: +configService.get("REDIS_PORT") || 6379, // Chuyển thành number với +
+        },
+      }),
+      inject: [ConfigService],
     }),
     PublicKeyModule,
     AuthModule,

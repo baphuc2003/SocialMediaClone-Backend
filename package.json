@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
+    "start:dev": "nest start --watch",
     "start:hybrid": "ts-node -r tsconfig-paths/register src/hybrid.app.ts",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node --max-old-space-size=8192 dist/main",
