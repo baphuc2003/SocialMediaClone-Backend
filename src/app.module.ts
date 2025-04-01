@@ -65,8 +65,10 @@ import {
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         connection: {
-          host: configService.get("REDIS_HOST") || "localhost",
-          port: +configService.get("REDIS_PORT") || 6379, // Chuyển thành number với +
+          // host: configService.get("REDIS_HOST") || "localhost",
+          host: "valkey-17305dfe-faucetpay31415-fafd.h.aivencloud.com",
+          // port: +configService.get("REDIS_PORT") || 6379, // Chuyển thành number với +
+          port: 23873,
         },
       }),
       inject: [ConfigService],
