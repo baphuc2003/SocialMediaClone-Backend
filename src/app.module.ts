@@ -52,7 +52,8 @@ import {
         console.log("MONGO_PORT:", configService.get("MONGO_PORT"));
         console.log("MONGO_DATABASE:", configService.get("MONGO_DATABASE"));
         return {
-          uri: `mongodb://${configService.get("MONGO_HOST") || "localhost"}:${configService.get("MONGO_PORT") || 27017}/${configService.get("MONGO_DATABASE") || "nest"}`,
+          // uri: `mongodb://${configService.get("MONGO_HOST") || "localhost"}:${configService.get("MONGO_PORT") || 27017}/${configService.get("MONGO_DATABASE") || "nest"}`,
+          uri: "mongodb+srv://baphuc3112:baphuc3112@cluster0.zgexqph.mongodb.net/nest",
         };
       },
       inject: [ConfigService],
