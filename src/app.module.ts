@@ -69,6 +69,8 @@ import {
           host: "valkey-17305dfe-faucetpay31415-fafd.h.aivencloud.com",
           // port: +configService.get("REDIS_PORT") || 6379, // Chuyển thành number với +
           port: 23873,
+          maxRetriesPerRequest: 50,
+          connectTimeout: 10000,
         },
       }),
       inject: [ConfigService],
