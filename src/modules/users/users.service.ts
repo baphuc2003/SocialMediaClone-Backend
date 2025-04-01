@@ -90,7 +90,7 @@ export class UsersService {
           expiresIn: 60 * 30,
         },
       });
-
+      console.log("check 93");
       await this.emailQueue.add("send-email", {
         email: newUser.email,
         userId: newUser.id,
