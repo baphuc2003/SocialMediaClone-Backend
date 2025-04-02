@@ -62,6 +62,7 @@ export class PostsController {
     @Res() res: Response
   ) {
     const userId = req.accessToken?.userId;
+    console.log("check 65", userId);
     const result = await this.postService.addPost({
       req,
       userId,

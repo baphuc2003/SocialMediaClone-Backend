@@ -50,7 +50,7 @@ export class PostsService {
     postEntity.type = post.type;
     postEntity.user = req.user;
     postEntity.content = post.content;
-
+    console.log("checck 53 ", postEntity);
     //kiem tra hashtag da ton tai chua
     const newHashtags = [];
     for (let i = 0; i < post?.hashtag?.length; i++) {
@@ -82,7 +82,7 @@ export class PostsService {
     });
     console.log("check 83 ", job);
     const result = await job.finished();
-    console.log("check 83 ", result);
+    console.log("check 85 ", result);
     //gọi comment queue tạo đồ thị
     const r = await this.commentQueue.add("create-graphComment", {
       userRootId: result?.user?.id,
