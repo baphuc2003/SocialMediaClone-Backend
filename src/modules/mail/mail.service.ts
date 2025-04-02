@@ -17,6 +17,7 @@ export class MailService extends WorkerHost {
   async process(job: Job, token?: string): Promise<any> {
     switch (job.name) {
       case "send-email": {
+        console.log("check 20");
         await this.sendRegistrationConfirmation(job.data);
         return;
       }
@@ -44,6 +45,7 @@ export class MailService extends WorkerHost {
   }) {
     // Xử lý logic gửi mail tại đây
     const url = `http://${process.env.HOST_SERVER}:${process.env.PORT_SERVER}/api/auth/confirm?token=${token}&userId=${userId}`;
+    console.log("check 48 url ", url);
     await this.mailerService.sendMail({
       to: email,
       subject: "Welcome to our service! Confirm your Email",
