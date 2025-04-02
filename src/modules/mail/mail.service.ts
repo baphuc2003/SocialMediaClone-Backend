@@ -44,15 +44,18 @@ export class MailService extends WorkerHost {
     token: string;
   }) {
     // Xử lý logic gửi mail tại đây
-    const url = `http://${process.env.HOST_SERVER}:${process.env.PORT_SERVER}/api/auth/confirm?token=${token}&userId=${userId}`;
-    console.log("check 48 url ", url);
+    const baseUrl = process.env.APP_URL || "http://localhost:3000";
+    const confirmUrl = `${baseUrl}/api/auth/confirm?token=${token}&userId=${userId}`;
+    // Gửi email với confirmUrl
+    // const url = `http://${process.env.HOST_SERVER}:${process.env.PORT_SERVER}/api/auth/confirm?token=${token}&userId=${userId}`;
+    console.log("check 48 url ", confirmUrl);
     await this.mailerService.sendMail({
       to: email,
       subject: "Welcome to our service! Confirm your Email",
       template: "./confirmation", // Đường dẫn tới file Handlebars template
       context: {
         // Truyền các biến vào template
-        url,
+        confirmUrl,
       },
     });
   }
@@ -67,14 +70,16 @@ export class MailService extends WorkerHost {
     token: string;
   }) {
     // Xử lý logic gửi mail tại đây
-    const resetUrl = `http://${process.env.HOST_SERVER}:${process.env.PORT_SERVER}/api/auth/reset-password?token=${token}&userId=${userId}`;
+    // const resetUrl = `http://${process.env.HOST_SERVER}:${process.env.PORT_SERVER}/api/auth/reset-password?token=${token}&userId=${userId}`;
+    const baseUrl = process.env.APP_URL || "http://localhost:3000";
+    const confirmUrl = `${baseUrl}/api/auth/confirm?token=${token}&userId=${userId}`;
     await this.mailerService.sendMail({
       to: email,
       subject: "Welcome to our service! Confirm your Email",
       template: "./forgot-password", // Đường dẫn tới file Handlebars template
       context: {
         // Truyền các biến vào template
-        resetUrl,
+        confirmUrl,
       },
     });
   }
