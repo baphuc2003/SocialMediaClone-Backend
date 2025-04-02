@@ -19,6 +19,7 @@ export class PostProcessor {
 
   @Process("create-post")
   async handleCreatePost(job: Job) {
+    console.log("check 22 ", job.data);
     const userId = job.data?.userId;
     const post: PostEntity = job.data.post;
     const result: IMedia[] = (await this.mediaService.uploadMultiPhoto({

@@ -104,7 +104,7 @@ export class MediaService {
         const url = `https://${this.bucketName}.s3.${this.configService.get(
           "S3_REGION"
         )}.amazonaws.com/${encodedKey}`;
-
+        console.log("check 107 ", url);
         result.push({
           type: file.mimetype.split("/")[0],
           url: url,
