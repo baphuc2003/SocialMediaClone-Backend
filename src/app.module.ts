@@ -71,6 +71,8 @@ import {
           port: 23873,
           // maxRetriesPerRequest: 50,
           connectTimeout: 10000,
+          username: configService.get("REDIS_USERNAME"),
+          password: configService.get("REDIS_PASSWORD"),
         },
       }),
       inject: [ConfigService],
