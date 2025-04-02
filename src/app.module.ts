@@ -66,13 +66,18 @@ import {
       useFactory: (configService: ConfigService) => ({
         connection: {
           // host: configService.get("REDIS_HOST") || "localhost",
-          host: "valkey-17305dfe-faucetpay31415-fafd.h.aivencloud.com",
+          // host: "valkey-17305dfe-faucetpay31415-fafd.h.aivencloud.com",
+          host: configService.get("REDIS_HOST"),
           // port: +configService.get("REDIS_PORT") || 6379, // Chuyển thành number với +
-          port: 23873,
+          // port: 23873,
+          port: configService.get("REDIS_PORT"),
           // maxRetriesPerRequest: 50,
-          connectTimeout: 10000,
+          // connectTimeout: 10000,
           username: configService.get("REDIS_USERNAME"),
           password: configService.get("REDIS_PASSWORD"),
+          tls: {
+            rejectUnauthorized: false,
+          },
         },
       }),
       inject: [ConfigService],
