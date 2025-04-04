@@ -63,44 +63,42 @@ import {
     MailModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      // useFactory: (configService: ConfigService) => {
-      //   console.log("REDIS_HOST:", configService.get("REDIS_HOST"));
-      //   console.log("REDIS_USERNAME:", configService.get("REDIS_USERNAME"));
-      //   console.log("REDIS_PASSWORD:", configService.get("REDIS_PASSWORD"));
-      //   console.log("REDIS_PORT:", configService.get("REDIS_PORT"));
-      //   return {
-      //     connection: {
-      //       host: configService.get("REDIS_HOST"),
-      //       port: configService.get("REDIS_PORT"),
-      //       username: configService.get("REDIS_USERNAME"),
-      //       password: configService.get("REDIS_PASSWORD"),
-      //       tls: {
-      //         // rejectUnauthorized: false,
-      //       },
-      //       // host: "localhost", // Redis local
-      //       // port: 6379,
-      //       // url: "redis://red-cvltb524d50c73e7gnhg:6379",
-
-      //     },
-      //     console.log('Redis Connection Config:', connection);
-      //   };
-      // },
       useFactory: (configService: ConfigService) => {
         console.log("REDIS_HOST:", configService.get("REDIS_HOST"));
         console.log("REDIS_USERNAME:", configService.get("REDIS_USERNAME"));
         console.log("REDIS_PASSWORD:", configService.get("REDIS_PASSWORD"));
         console.log("REDIS_PORT:", configService.get("REDIS_PORT"));
-        const connection = {
-          host: configService.get("REDIS_HOST"),
-          port: configService.get("REDIS_PORT"),
-          username: configService.get("REDIS_USERNAME"),
-          password: configService.get("REDIS_PASSWORD"),
-          tls: {},
+        return {
+          connection: {
+            // host: configService.get("REDIS_HOST"),
+            // port: configService.get("REDIS_PORT"),
+            // username: configService.get("REDIS_USERNAME"),
+            // password: configService.get("REDIS_PASSWORD"),
+            // tls: {
+            //   // rejectUnauthorized: false,
+            // },
+            // // host: "localhost", // Redis local
+            // // port: 6379,
+            url: "redis://red-cvnthqa4d50c7398vag0:6379",
+          },
         };
-        console.log("Redis Connection Config:", connection); // In ra để kiểm tra
-        return { connection };
       },
-      inject: [ConfigService],
+      // useFactory: (configService: ConfigService) => {
+      //   console.log("REDIS_HOST:", configService.get("REDIS_HOST"));
+      //   console.log("REDIS_USERNAME:", configService.get("REDIS_USERNAME"));
+      //   console.log("REDIS_PASSWORD:", configService.get("REDIS_PASSWORD"));
+      //   console.log("REDIS_PORT:", configService.get("REDIS_PORT"));
+      //   const connection = {
+      //     host: configService.get("REDIS_HOST"),
+      //     port: configService.get("REDIS_PORT"),
+      //     username: configService.get("REDIS_USERNAME"),
+      //     password: configService.get("REDIS_PASSWORD"),
+      //     tls: {},
+      //   };
+      //   console.log("Redis Connection Config:", connection); // In ra để kiểm tra
+      //   return { connection };
+      // },
+      // inject: [ConfigService],
     }),
     PublicKeyModule,
     AuthModule,
