@@ -14,6 +14,11 @@ import { FollowEntity } from "./entities/follow.entity";
     TypeOrmModule.forFeature([UserEntity, FollowEntity]),
     BullModule.registerQueue({
       name: "userQueue",
+      defaultJobOptions: {
+        attempts: 3,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     }),
     MailModule,
     PublicKeyModule,

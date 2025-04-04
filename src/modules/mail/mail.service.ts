@@ -49,15 +49,18 @@ export class MailService extends WorkerHost {
     // Gửi email với confirmUrl
     // const url = `http://${process.env.HOST_SERVER}:${process.env.PORT_SERVER}/api/auth/confirm?token=${token}&userId=${userId}`;
     console.log("check 48 url ", confirmUrl);
-    await this.mailerService.sendMail({
-      to: email,
-      subject: "Welcome to our service! Confirm your Email",
-      template: "./confirmation", // Đường dẫn tới file Handlebars template
-      context: {
-        // Truyền các biến vào template
-        confirmUrl,
-      },
-    });
+    try {
+      await this.mailerService.sendMail({
+        to: email,
+        subject: "Welcome to our service! Confirm your Email",
+        template: "./confirmation",
+        context: { confirmUrl },
+      });
+      console.log("check 61 - Mail sent successfully");
+    } catch (error) {
+      console.error("Error sending mail:", error);
+      throw error; // Ném lỗi để BullMQ retry nếu cần
+    }
   }
 
   async sendForgotPasswordConfirmation({
