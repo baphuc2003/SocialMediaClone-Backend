@@ -74,9 +74,9 @@ import {
             port: configService.get("REDIS_PORT"),
             username: configService.get("REDIS_USERNAME"),
             password: configService.get("REDIS_PASSWORD"),
-            // tls: {
-            //   rejectUnauthorized: false,
-            // },
+            tls: {
+              // rejectUnauthorized: false,
+            },
             // host: "localhost", // Redis local
             // port: 6379,
             // url: "redis://red-cvltb524d50c73e7gnhg:6379",
