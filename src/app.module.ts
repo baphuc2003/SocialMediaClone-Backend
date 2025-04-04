@@ -70,14 +70,16 @@ import {
         console.log("REDIS_PORT:", configService.get("REDIS_PORT"));
         return {
           connection: {
-            // host: configService.get("REDIS_HOST"),
-            // port: configService.get("REDIS_PORT"),
-            // username: configService.get("REDIS_USERNAME"),
-            // password: configService.get("REDIS_PASSWORD"),
-            // tls: {
-            //   rejectUnauthorized: false,
-            // },
-            url: "redis://red-cvltb524d50c73e7gnhg:6379",
+            host: configService.get("REDIS_HOST"),
+            port: configService.get("REDIS_PORT"),
+            username: configService.get("REDIS_USERNAME"),
+            password: configService.get("REDIS_PASSWORD"),
+            tls: {
+              rejectUnauthorized: false,
+            },
+            // host: "localhost", // Redis local
+            // port: 6379,
+            // url: "redis://red-cvltb524d50c73e7gnhg:6379",
           },
         };
       },
