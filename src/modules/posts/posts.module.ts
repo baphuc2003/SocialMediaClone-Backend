@@ -21,6 +21,11 @@ import { CommentsModule } from "../comments/comments.module";
     CommentsModule,
     BullModule.registerQueue({
       name: "postQueue",
+      defaultJobOptions: {
+        attempts: 3,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     }),
   ],
   controllers: [PostsController],
