@@ -93,6 +93,7 @@ export class PostsService {
     // return result;
 
     try {
+      console.log("check 966");
       const job = await this.postQueue.add("create-post", {
         userId,
         post: postEntity,
