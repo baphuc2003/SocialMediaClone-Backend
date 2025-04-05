@@ -8,13 +8,14 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { PostEntity } from "./entities/post.entity";
 import { Between, Repository } from "typeorm";
 import { HashtagEntity } from "./entities/hashtag.entity";
-import { InjectQueue } from "@nestjs/bull";
-import { Queue } from "bull";
+
 import { addFileToMap, fileMap } from "../media/data-structures/file-map";
 import { Request } from "express";
 import { LikeEntity } from "./entities/like.entity";
 import { UserEntity } from "../users/entities/users.entity";
 import { FollowEntity } from "../users/entities/follow.entity";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue, QueueEvents } from "bullmq";
 
 @Injectable()
 export class PostsService {
@@ -76,46 +77,13 @@ export class PostsService {
     postEntity.created_at = new Date();
     // postEntity.
 
-    // const job = await this.postQueue.add("create-post", {
-    //   userId,
-    //   post: postEntity,
-    // });
-    // console.log("check 83 ", job);
-    // const result = await job.finished();
-    // console.log("check 85 ", result);
-    // //gọi comment queue tạo đồ thị
-    // const r = await this.commentQueue.add("create-graphComment", {
-    //   userRootId: result?.user?.id,
-    //   postRootId: result?.id,
-    // });
-    // const r2 = await r.finished();
-    // console.log("check 90 ", r2);
-    // return result;
+    // Thêm job vào queue
+    const job = await this.postQueue.add("create-post", {
+      userId,
+      post: postEntity,
+    });
 
-    try {
-      console.log("check 966");
-      const job = await this.postQueue.add("create-post", {
-        userId,
-        post: postEntity,
-      });
-      console.log("check 83 ", job);
-      const result = await job.finished();
-      console.log("check 85 ", result);
-      //gọi comment queue tạo đồ thị
-      const r = await this.commentQueue.add("create-graphComment", {
-        userRootId: result?.user?.id,
-        postRootId: result?.id,
-      });
-      const r2 = await r.finished();
-      console.log("check 90 ", r2);
-      return result;
-    } catch (error) {
-      console.error("Error adding job to postQueue:", error);
-      throw error;
-    }
     return;
-    //Lưu post
-    // const savedPost = await this.postRepository.save(post);
   }
 
   async likePost({ postId, userId }: { postId: string; userId: string }) {

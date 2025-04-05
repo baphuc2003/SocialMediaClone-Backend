@@ -72,9 +72,6 @@ export class PostsController {
 
     return res.status(201).json({
       message: "Create a new post successfully!",
-      post: {
-        ...result,
-      },
     });
   }
 

@@ -6,11 +6,12 @@ import { PostEntity } from "./entities/post.entity";
 import { HashtagEntity } from "./entities/hashtag.entity";
 import { UsersModule } from "../users/users.module";
 import { PublicKeyModule } from "../public-key/public-key.module";
-import { BullModule } from "@nestjs/bull";
+
 import { PostProcessor } from "./processor/post.processor";
 import { MediaModule } from "../media/media.module";
 import { LikeEntity } from "./entities/like.entity";
 import { CommentsModule } from "../comments/comments.module";
+import { BullModule } from "@nestjs/bullmq";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CommentsModule } from "../comments/comments.module";
     PublicKeyModule,
     MediaModule,
     CommentsModule,
+
     BullModule.registerQueue({
       name: "postQueue",
       defaultJobOptions: {

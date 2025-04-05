@@ -29,6 +29,6 @@ import { UserEntity } from "../users/entities/users.entity";
   ],
   controllers: [CommentsController],
   providers: [CommentsService, CommentProcessor],
-  exports: [BullModule],
+  exports: [BullModule, MongooseModule],
 })
 export class CommentsModule {}

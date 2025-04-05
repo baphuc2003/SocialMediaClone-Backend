@@ -1,36 +1,62 @@
-import { Process, Processor } from "@nestjs/bull";
-import { Job } from "bull";
-import { fileMap } from "src/modules/media/data-structures/file-map";
-import { MediaService } from "src/modules/media/media.service";
-import { CreatePostDto } from "../dto/create-post.dto";
-import { PostEntity } from "../entities/post.entity";
-import { IMedia } from "../interface/post.interface";
+// post.worker.ts
+import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserEntity } from "src/modules/users/entities/users.entity";
+
 import { Repository } from "typeorm";
+import { Job } from "bullmq";
+import { MediaService } from "src/modules/media/media.service";
+import { fileMap } from "src/modules/media/data-structures/file-map";
+import { PostEntity } from "../entities/post.entity";
+import { CommentGraph } from "src/modules/comments/utils/graphComment";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { GraphCommentDocument } from "src/modules/comments/schemas/graph-comment.schema";
 
 @Processor("postQueue")
-export class PostProcessor {
+export class PostProcessor extends WorkerHost {
   constructor(
     private readonly mediaService: MediaService,
     @InjectRepository(PostEntity)
-    private readonly postRepository: Repository<PostEntity>
-  ) {}
+    private readonly postRepository: Repository<PostEntity>,
+    @InjectModel("Graph_Comment")
+    private graphCommentModel: Model<GraphCommentDocument>
+  ) {
+    super();
+  }
 
-  @Process("create-post")
-  async handleCreatePost(job: Job) {
-    console.log("check 22 ", job.data);
-    const userId = job.data?.userId;
-    const post: PostEntity = job.data.post;
-    const result: IMedia[] = (await this.mediaService.uploadMultiPhoto({
-      userId: userId,
-      fileMap: fileMap,
-    })) as IMedia[];
-    post.mediaUrls = result;
+  async process(job: Job): Promise<any> {
+    console.log("Processing job:", job.name);
+
+    const { userId, post } = job.data;
+
+    const uploaded = await this.mediaService.uploadMultiPhoto({
+      userId,
+      fileMap,
+    });
+
+    post.mediaUrls = uploaded;
     post.created_at = new Date();
 
-    //save db
-    await this.postRepository.save(post);
-    return post;
+    const saved = await this.postRepository.save(post);
+    console.log("Post saved:", saved);
+    // userRootId: result?.user?.id,
+    // //   postRootId: result?.id,
+    const userRootId = saved?.user?.id;
+    const postRootId = saved?.id;
+    //Tạo mới đồ thị
+    const newGraph = new CommentGraph();
+    newGraph.addVertex({
+      id: postRootId,
+      userId: userRootId,
+    });
+    console.log("check 26 ", newGraph);
+    const graphDoc = new this.graphCommentModel({
+      userRootId: userRootId,
+      postRootId: postRootId,
+      graph: newGraph.adjList,
+    });
+    console.log("check 32 ", graphDoc);
+
+    return saved;
   }
 }
