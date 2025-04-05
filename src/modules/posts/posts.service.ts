@@ -76,21 +76,42 @@ export class PostsService {
     postEntity.created_at = new Date();
     // postEntity.
 
-    const job = await this.postQueue.add("create-post", {
-      userId,
-      post: postEntity,
-    });
-    console.log("check 83 ", job);
-    const result = await job.finished();
-    console.log("check 85 ", result);
-    //gọi comment queue tạo đồ thị
-    const r = await this.commentQueue.add("create-graphComment", {
-      userRootId: result?.user?.id,
-      postRootId: result?.id,
-    });
-    const r2 = await r.finished();
-    console.log("check 90 ", r2);
-    return result;
+    // const job = await this.postQueue.add("create-post", {
+    //   userId,
+    //   post: postEntity,
+    // });
+    // console.log("check 83 ", job);
+    // const result = await job.finished();
+    // console.log("check 85 ", result);
+    // //gọi comment queue tạo đồ thị
+    // const r = await this.commentQueue.add("create-graphComment", {
+    //   userRootId: result?.user?.id,
+    //   postRootId: result?.id,
+    // });
+    // const r2 = await r.finished();
+    // console.log("check 90 ", r2);
+    // return result;
+
+    try {
+      const job = await this.postQueue.add("create-post", {
+        userId,
+        post: postEntity,
+      });
+      console.log("check 83 ", job);
+      const result = await job.finished();
+      console.log("check 85 ", result);
+      //gọi comment queue tạo đồ thị
+      const r = await this.commentQueue.add("create-graphComment", {
+        userRootId: result?.user?.id,
+        postRootId: result?.id,
+      });
+      const r2 = await r.finished();
+      console.log("check 90 ", r2);
+      return result;
+    } catch (error) {
+      console.error("Error adding job to postQueue:", error);
+      throw error;
+    }
     return;
     //Lưu post
     // const savedPost = await this.postRepository.save(post);
