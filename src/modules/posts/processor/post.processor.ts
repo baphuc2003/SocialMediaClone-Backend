@@ -56,7 +56,7 @@ export class PostProcessor extends WorkerHost {
       graph: newGraph.adjList,
     });
     console.log("check 32 ", graphDoc);
-
+    await graphDoc.save();
     return saved;
   }
 }
