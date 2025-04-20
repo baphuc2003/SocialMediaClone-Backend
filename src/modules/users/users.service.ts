@@ -36,6 +36,13 @@ import { LoginUserDto } from "./dto/login-user.dto";
 import { FollowEntity } from "./entities/follow.entity";
 import { FollowUserDto } from "./dto/follow-user.dto";
 import { isUUID } from "class-validator";
+import { FriendStatus, MakeFriendEntity } from "./entities/make-friend.entity";
+import { NotificationGateway } from "../socket/gateways/notification.gateway";
+import {
+  NotificationEntity,
+  NotificationType,
+} from "../notification/entities/notification.entity";
+import { RabbitMQService } from "../rabbitMq/rabbitmq.service";
 
 @Injectable()
 export class UsersService {
@@ -46,7 +53,13 @@ export class UsersService {
     private readonly publicKeyRepository: Repository<PublicKeyEntity>,
     @InjectQueue("emailQueue") private emailQueue: Queue,
     @InjectRepository(FollowEntity)
-    private readonly followRepository: Repository<FollowEntity>
+    private readonly followRepository: Repository<FollowEntity>,
+    @InjectRepository(MakeFriendEntity)
+    private readonly makeFriendRepository: Repository<MakeFriendEntity>,
+    @InjectRepository(NotificationEntity)
+    private readonly notificationRepository: Repository<NotificationEntity>,
+    private readonly notificationGateway: NotificationGateway,
+    private readonly rabbitService: RabbitMQService
   ) {}
 
   async createUser(dto: CreateUserDto, req: Request) {
@@ -96,6 +109,11 @@ export class UsersService {
         userId: newUser.id,
         token: authToken,
       });
+
+      this.rabbitService.sendMessage("sync_user_queue", "user.created", {
+        id: newUser.id,
+        name: newUser.username,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -110,6 +128,13 @@ export class UsersService {
     await this.publicKeyRepository.save(token);
 
     return dto;
+  }
+
+  async demo() {
+    this.rabbitService.sendMessage("sync_user_queue", "user.created", {
+      id: "123",
+      name: "yasuo",
+    });
   }
 
   async loginUser(data: LoginUserDto) {
@@ -282,11 +307,13 @@ export class UsersService {
         }
       ),
     ]);
+
     await this.emailQueue.add("send-forgot-password-email", {
       email: email,
       userId: user.id,
       token: forgotPasswordToken,
     });
+
     return {
       userId: user.id,
       "forgot-password-token": forgotPasswordToken,
@@ -377,5 +404,79 @@ export class UsersService {
     });
 
     return listFollowing;
+  }
+
+  async makeFriend({
+    senderId,
+    receiverId,
+  }: {
+    senderId: string;
+    receiverId: string;
+  }) {
+    if (senderId === receiverId) {
+      throw new BadRequestException("Can't send invitations to yourself");
+    }
+
+    const [sender, receiver] = await Promise.all([
+      this.usersRepository.findOne({
+        where: {
+          id: senderId,
+        },
+      }),
+      this.usersRepository.findOne({
+        where: {
+          id: receiverId,
+        },
+      }),
+    ]);
+
+    if (!sender) {
+      throw new NotFoundException("SenderId not found!");
+    }
+
+    if (!receiver) {
+      throw new NotFoundException("ReceiverId not found!");
+    }
+
+    const existed = await this.makeFriendRepository.findOne({
+      where: [
+        { sender: { id: senderId }, receiver: { id: receiverId } },
+        { sender: { id: receiverId }, receiver: { id: senderId } },
+      ],
+    });
+
+    if (existed) {
+      throw new BadRequestException(
+        "Invitation already exists or is already a friend"
+      );
+    }
+
+    const newRequest = this.makeFriendRepository.create({
+      sender,
+      receiver,
+      status: FriendStatus.PENDING,
+      created_at: new Date(),
+    });
+    console.log("check 442 ", newRequest);
+    await this.makeFriendRepository.save(newRequest);
+    // get something infor of sender
+    const { username, image, gender } = newRequest.sender;
+    const notification = this.notificationRepository.create({
+      sender,
+      receiver,
+      data: {
+        message: `${sender.username} đã gởi cho bạn một yêu cầu kết bạn.`,
+      },
+      createdAt: new Date(),
+      type: NotificationType.FRIEND_REQUEST, // Loại thông báo có thể là 'friend-request', 'message', v.v.
+    });
+    console.log("check 454 ", notification);
+    await this.notificationRepository.save(notification);
+    // Gửi thông báo qua WebSocket
+    this.notificationGateway.sendFriendRequestNotification(receiverId, {
+      username: username,
+      image: image,
+      gender: gender,
+    });
   }
 }

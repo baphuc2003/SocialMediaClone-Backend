@@ -33,6 +33,7 @@ import { UserVerifyGuard } from "src/modules/users/guards/user-verify.guard";
 import { CanFollowUserGuard } from "src/modules/users/guards/can-follow-user.guard";
 import { FollowUserDto } from "./dto/follow-user.dto";
 import { CanUnfollowUserGuard } from "src/modules/users/guards/can-unfollow-user.guard";
+import { MakeFriendDto } from "./dto/make-friend.dto";
 
 @Controller("user")
 export class UsersController {
@@ -40,6 +41,12 @@ export class UsersController {
     private readonly userService: UsersService,
     @InjectQueue("userQueue") private userQueue: Queue
   ) {}
+
+  @Post("demo")
+  async getDemo() {
+    const result = await this.userService.demo();
+    return result;
+  }
 
   @UsePipes(new ValidationPipe())
   @Post("register")
@@ -186,9 +193,20 @@ export class UsersController {
     });
   }
 
-  @Get("demo")
-  @UseGuards(AccessTokenGuard)
-  async demo(@Req() req: Request, @Res() res: Response) {
-    return res.status(200).json("nguu");
+  @UsePipes(new ValidationPipe())
+  @Post("make-friend")
+  async makeFriend(
+    @Body() makeFriendDto: MakeFriendDto,
+    @Req() req: Request,
+    @Res() res: Response
+  ) {
+    const { senderId, receiverId } = makeFriendDto;
+    const result = await this.userService.makeFriend({
+      senderId,
+      receiverId,
+    });
+    return res.status(200).json({
+      message: "Make friend successfully!",
+    });
   }
 }

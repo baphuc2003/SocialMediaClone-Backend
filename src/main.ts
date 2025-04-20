@@ -24,6 +24,26 @@ async function bootstrap() {
   });
   app.use(cookieParser());
 
+  // 👇 Đây là phần bắt buộc nếu bạn muốn listen consumer
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: ["amqp://localhost:5672"],
+  //     queue: "demoQueue",
+  //     queueOptions: { durable: true },
+  //   },
+  // });
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RABBITMQ_URL],
+      queue: "sync_user_queue",
+      queueOptions: { durable: true },
+    },
+  });
+
+  await app.startAllMicroservices(); // 👈 đừng quên cái này
   await app.listen(process.env.PORT_SERVER || 3000);
   console.log(`Sever is running on port ${process.env.PORT_SERVER}`);
 }
