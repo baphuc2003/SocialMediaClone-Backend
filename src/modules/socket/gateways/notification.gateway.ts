@@ -12,6 +12,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Inject } from "@nestjs/common";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
+import { NotificationEntity } from "src/modules/notification/entities/notification.entity";
 
 @WebSocketGateway({
   cors: {
@@ -45,6 +46,7 @@ export class NotificationGateway
 
   handleConnection(client: Socket, ...args: any[]) {
     const userId = client.handshake.query?.userId as string;
+    console.log("check 23 ", client.handshake);
     console.log("check 24 ", userId);
     console.log(`Client connected: ${client.id}`);
     // Lưu client
@@ -108,6 +110,32 @@ export class NotificationGateway
       console.log(
         `Client disconnected: ${client.id}, userId: ${userIdToRemove}`
       );
+    }
+  }
+
+  // Gửi lời mời kết bạn cho người nhận
+  sendFriendRequestNotification(
+    receiverId: string,
+    sender: {
+      username: string;
+      image: string;
+      gender: string;
+    }
+  ) {
+    const socketId = this.connectedClients.get(receiverId);
+    console.log("check 120 ", receiverId);
+    console.log("check 121 ", socketId);
+    if (socketId) {
+      const payload = {
+        username: sender.username,
+        image: sender.image,
+        gender: sender.gender,
+        message: `${sender.username} đã gửi cho bạn một lời mời kết bạn.`,
+      };
+      this.server.to(socketId).emit("friend-request-received", payload);
+      console.log("chek 128 ", payload);
+    } else {
+      console.log(`User ${receiverId} chưa online`);
     }
   }
 

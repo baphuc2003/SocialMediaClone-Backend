@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { NotificationGateway } from "./gateways/notification.gateway";
 import { SocketController } from "./socket.controller";
 import { UsersModule } from "../users/users.module";
@@ -10,7 +10,7 @@ import { CacheModule } from "@nestjs/cache-manager";
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule),
     PublicKeyModule,
     TypeOrmModule.forFeature([SingleConversationEntity]),
     CacheModule.register(),
@@ -18,5 +18,6 @@ import { CacheModule } from "@nestjs/cache-manager";
 
   providers: [NotificationGateway, SocketService],
   controllers: [SocketController],
+  exports: [NotificationGateway],
 })
 export class SocketModule {}
