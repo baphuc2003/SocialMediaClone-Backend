@@ -1,24 +1,18 @@
 // src/rabbitmq.module.ts
-import { Module, Global } from "@nestjs/common";
+import { Module, Global, forwardRef } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { RabbitMQService } from "./rabbitmq.service";
+import { RabbitMQController } from "./rabbitmq.controller";
+import { RabbitMQConsumer } from "./rabbitmq.consumer";
+import { ElasticsearchModule } from "../elasticsearch/elasticsearch.module";
+import { rabbitmqProvider } from "./rabbitmq.provider";
+import { ConfigModule } from "@nestjs/config";
 
 @Global()
 @Module({
-  imports: [
-    ClientsModule.register([
-      {
-        name: "RABBITMQ_SERVICE",
-        transport: Transport.RMQ,
-        options: {
-          urls: ["amqp://localhost:5672"], // Thay bằng URL RabbitMQ của bạn
-          queue: "main_queue", // Đặt tên queue mà bạn muốn sử dụng
-          queueOptions: {
-            durable: true,
-          },
-        },
-      },
-    ]),
-  ],
-  exports: [ClientsModule],
+  imports: [forwardRef(() => ElasticsearchModule), ConfigModule],
+  controllers: [RabbitMQController, RabbitMQConsumer],
+  providers: [RabbitMQService, RabbitMQConsumer, rabbitmqProvider],
+  exports: [RabbitMQService],
 })
 export class RabbitMQModule {}
