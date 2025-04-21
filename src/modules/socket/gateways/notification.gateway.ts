@@ -20,6 +20,7 @@ import { NotificationEntity } from "src/modules/notification/entities/notificati
       "http://127.0.0.1:5500",
       "http://127.0.0.1:5173",
       "http://localhost:5173",
+      "https://socialmediaclone-frontend-v1.onrender.com",
     ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
