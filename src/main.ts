@@ -17,7 +17,7 @@ async function bootstrap() {
       "http://127.0.0.1:5173",
       "http://localhost:5173",
       "http://127.0.0.1:5174",
-      "https://socialmediaclone-frontend-v1.onrender.com/",
+      "https://socialmediaclone-frontend-v1.onrender.com",
     ], // Chỉ chấp nhận yêu cầu từ địa chỉ này
     methods: ["GET", "POST", "PUT", "DELETE"], // Các phương thức HTTP được phép
     allowedHeaders: ["Content-Type", "Authorization", "Range"],
