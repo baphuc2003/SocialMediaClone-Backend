@@ -43,7 +43,8 @@ export class AuthController {
   ) {
     const { userId, token } = dta;
     console.log("check 41 ", dta);
-    const frontendUrl = "http://localhost:5173/login";
+    const frontendUrl =
+      "https://socialmediaclone-frontend-v1.onrender.com/login";
     try {
       await this.authService.verifyToken({
         userId: userId,
