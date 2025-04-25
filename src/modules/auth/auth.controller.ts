@@ -43,58 +43,147 @@ export class AuthController {
   ) {
     const { userId, token } = dta;
     console.log("check 41 ", dta);
-    const result = await this.authService.verifyToken({
-      userId: userId,
-      token: token,
-      req,
-    });
-    const { publicKey, privateKey } = await generateKeyToken();
-    console.log("check 48 ", req.user);
-    const [accessToken, refreshToken] = await Promise.all([
-      generateToken({
-        payload: {
-          type: TokenType.AccessToken,
-          userId: userId,
-          status: Status.Verified,
-        },
-        signature: privateKey,
-        options: {
-          algorithm: "RS256",
-          expiresIn: "15m",
-        },
-      }),
-      generateToken({
-        payload: {
-          type: TokenType.RefreshToken,
-          userId: userId,
-          status: Status.Verified,
-        },
-        signature: privateKey,
-        options: {
-          algorithm: "RS256",
-          expiresIn: "30d",
-        },
-      }),
-      //save new public key
-      this.publicKeyRepository.update(
-        {
-          userId: userId,
-        },
-        {
-          token: publicKey,
-        }
-      ),
-      this.usersRepository.update({ id: userId }, { status: Status.Verified }),
-    ]);
-
-    return res.status(200).json({
-      message: "Authentication success!",
-      data: {
+    const frontendUrl = "http://localhost:5173/login";
+    try {
+      await this.authService.verifyToken({
         userId: userId,
-        accessToken,
-        refreshToken,
-      },
-    });
+        token: token,
+        req,
+      });
+    } catch (error) {
+      const errorTemplate = `
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Xác thực email thất bại</title>
+      <style>
+        body { font-family: Arial, sans-serif; background-color: #000000; color: #f0f8ff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { text-align: center; padding: 20px; border-radius: 8px; background-color: #1c2526; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); max-width: 500px; }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        p { font-size: 16px; margin-bottom: 30px; }
+        a { display: inline-block; padding: 10px 20px; background-color: #1d9bf0; color: #f0f8ff; text-decoration: none; border-radius: 24px; font-size: 16px; transition: background-color 0.3s; }
+        a:hover { background-color: #F3453F; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Xác thực email thất bại</h1>
+        <p>Link xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.</p>
+        <a href="${frontendUrl}">Đăng nhập</a>
+      </div>
+    </body>
+    </html>
+  `;
+      return res.status(400).send(errorTemplate);
+    }
+    // const { publicKey, privateKey } = await generateKeyToken();
+    // console.log("check 48 ", req.user);
+    // const [accessToken, refreshToken] = await Promise.all([
+    //   generateToken({
+    //     payload: {
+    //       type: TokenType.AccessToken,
+    //       userId: userId,
+    //       status: Status.Verified,
+    //     },
+    //     signature: privateKey,
+    //     options: {
+    //       algorithm: "RS256",
+    //       expiresIn: "15m",
+    //     },
+    //   }),
+    //   generateToken({
+    //     payload: {
+    //       type: TokenType.RefreshToken,
+    //       userId: userId,
+    //       status: Status.Verified,
+    //     },
+    //     signature: privateKey,
+    //     options: {
+    //       algorithm: "RS256",
+    //       expiresIn: "30d",
+    //     },
+    //   }),
+    //   //save new public key
+    //   this.publicKeyRepository.update(
+    //     {
+    //       userId: userId,
+    //     },
+    //     {
+    //       token: publicKey,
+    //     }
+    //   ),
+    //   this.usersRepository.update({ id: userId }, { status: Status.Verified }),
+    // ]);
+
+    // Cập nhật trạng thái người dùng thành Verified
+    await this.usersRepository.update(
+      { id: userId },
+      { status: Status.Verified }
+    );
+
+    const htmlTemplate = `
+      <!DOCTYPE html>
+      <html lang="vi">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Xác thực email thành công</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+          }
+          .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #1c2526;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+          }
+          h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+          p {
+            font-size: 16px;
+            margin-bottom: 30px;
+          }
+          a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1d9bf0;
+            color: #f0f8ff;
+            text-decoration: none;
+            border-radius: 24px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+          }
+          a:hover {
+            background-color: #F3453F;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Xác thực email thành công!</h1>
+          <p>Tài khoản của bạn đã được xác thực. Vui lòng đăng nhập để tiếp tục.</p>
+          <a href="${frontendUrl}">Đăng nhập</a>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Trả về template HTML
+    return res.status(200).send(htmlTemplate);
   }
 
   @UsePipes(new ValidationPipe())
