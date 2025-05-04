@@ -16,7 +16,7 @@ export class HideInforUserInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data: UserEntity) => {
         if (data && typeof data === "object") {
-          const { id, password, status, role, ...rest } = data;
+          const { password, role, ...rest } = data;
           return res.status(200).json({
             message: "Get user successfully!",
             data: {
