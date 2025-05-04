@@ -192,6 +192,7 @@ export class UsersService {
 
     return {
       userId: user.id,
+      username: user.username,
       accessToken,
       refreshToken,
     };
@@ -402,8 +403,26 @@ export class UsersService {
         user: { id: userId },
       },
     });
-
-    return listFollowing;
+    console.log("check listFollowing ", listFollowing);
+    const cleanedList = listFollowing.map((follow) => {
+      return {
+        id: follow.id,
+        created_at: follow.created_at,
+        user: {
+          id: follow.user.id,
+          username: follow.user.username,
+          image: follow.user.image,
+          gender: follow.user.gender,
+        },
+        followingUser: {
+          id: follow.followingUser.id,
+          username: follow.followingUser.username,
+          image: follow.followingUser.image,
+          gender: follow.followingUser.gender,
+        },
+      };
+    });
+    return cleanedList;
   }
 
   async makeFriend({
